@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Masters Pool — 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #1a4731;
+    --green-mid: #2d6a4f;
+    --green-light: #40916c;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #faf6ee;
+    --cream-dark: #f0e8d5;
+    --white: #ffffff;
+    --text-dark: #1a1a1a;
+    --text-mid: #3d3d3d;
+    --text-muted: #7a6e5f;
+    --red: #b5302a;
+  }
+
+  body {
+    background: var(--green);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .header-badge {
+    display: inline-block;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold-light);
+    font-family: 'Crimson Pro', serif;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    padding: 6px 20px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(38px, 7vw, 72px);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+
+  .header h1 span { color: var(--gold); }
+
+  .annual {
+    font-style: italic;
+    font-size: 13px;
+    color: rgba(201,168,76,0.45);
+    margin-top: 4px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .header-sub {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: rgba(250,246,238,0.55);
+    margin-top: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .divider {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 20px auto;
+  }
+
+  .cut-legend {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+  .cut-legend.visible {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+  .cut-badge {
+    font-size: 12px;
+    color: rgba(250,246,238,0.4);
+    font-style: italic;
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 3px 12px;
+    border-radius: 10px;
+  }
+  .legend-pill {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 10px;
+    border: 1px solid;
+  }
+  .mobile-only { display: none; }
+  @media(max-width:700px){ .mobile-only { display: inline-block; } }
+  .legend-pill.safe   { background: rgba(60,160,90,0.2);   color: #6ee090; border-color: rgba(60,160,90,0.25); }
+  .legend-pill.bubble { background: rgba(200,160,40,0.25); color: #e8c97a; border-color: rgba(200,160,40,0.3); }
+  .legend-pill.danger { background: rgba(180,60,60,0.25);  color: #e07070; border-color: rgba(180,60,60,0.3); }
+
+  #day-badge-container {
+    margin-top: -8px;
+  }
+  .day-badge {
+    display: inline-block;
+    text-align: center;
+    margin-top: 0;
+  }
+  .day-badge-label {
+    font-family: 'Crimson Pro', serif;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.5);
+    margin-bottom: 5px;
+  }
+  .day-badge-main {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #e8c97a;
+    letter-spacing: 0.05em;
+    display: block;
+  }
+  .day-badge-sub {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(250,246,238,0.4);
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+  .defending-champ {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(201,168,76,0.5);
+    letter-spacing: 0.06em;
+    margin-top: 14px;
+    text-align: center;
+  }
+  .defending-champ strong {
+    color: rgba(201,168,76,0.85);
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .day-badge-rule {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+    margin: 8px auto;
+  }
+
+  .live-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .live-dot {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(250,246,238,0.5);
+  }
+
+  .live-dot.active { color: #5ecb7a; }
+
+  .live-dot::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 8px var(--gold);
+    animation: pulse 2s infinite;
+  }
+
+  .live-dot.active::before { background: #5ecb7a; box-shadow: 0 0 8px #5ecb7a; }
+  .live-dot.loading::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+  .live-dot.error::before { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
+
+  .last-updated {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: rgba(250,246,238,0.35);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .scoreboard { animation: fadeUp 0.8s 0.5s ease both; }
+
+  .col-headers {
+    display: grid;
+    grid-template-columns: 60px 1fr 80px 140px repeat(5, 1fr);
+    gap: 0;
+    padding: 0 24px 10px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.6);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    margin-bottom: 12px;
+  }
+
+  .col-headers .picks-header {
+    grid-column: 5 / 10;
+    text-align: center;
+    display: block;
+  }
+
+  .player-row {
+    background: rgba(250,246,238,0.04);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 3px;
+    margin-bottom: 8px;
+    padding: 0 24px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .player-row.eliminated {
+    opacity: 0.4;
+    border-color: rgba(201,168,76,0.05);
+  }
+  .player-row.eliminated:hover { opacity: 0.55; }
+  .player-row.eliminated .place { color: rgba(250,246,238,0.4); }
+  .player-row.eliminated .player-name { color: rgba(250,246,238,0.5); }
+  .player-row.eliminated .score { color: rgba(250,246,238,0.4) !important; }
+
+  .player-row:hover {
+    background: rgba(250,246,238,0.07);
+    border-color: rgba(201,168,76,0.25);
+  }
+
+  .player-row.first-place {
+    background: rgba(201,168,76,0.08);
+    border-color: rgba(201,168,76,0.35);
+  }
+
+  .player-row.first-place:hover {
+    background: rgba(201,168,76,0.12);
+  }
+
+  .row-main {
+    display: grid;
+    grid-template-columns: 60px 1fr 80px 140px repeat(5, 1fr);
+    align-items: center;
+    gap: 0;
+    min-height: 64px;
+  }
+
+  .place {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .first-place .place { color: var(--gold-light); }
+
+  .player-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--cream);
+    letter-spacing: 0.01em;
+  }
+
+  .first-place .player-name { font-weight: 700; }
+
+  .score {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--cream);
+    text-align: center;
+  }
+
+  .score.under { color: #6ee090; }
+  .score.over  { color: #e07070; }
+  .score.even  { color: rgba(250,246,238,0.6); }
+
+  .outlook {
+    font-size: 15px;
+    color: rgba(250,246,238,0.55);
+    font-style: italic;
+    padding-right: 12px;
+  }
+
+  .golfer-cell {
+    font-size: 14px;
+    color: rgba(250,246,238,0.65);
+    padding: 4px 6px 4px 0;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+
+  .trophy { display: inline-block; margin-right: 4px; font-size: 14px; }
+
+  .champ-year {
+    font-family: 'Crimson Pro', serif;
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 600;
+    color: #e8c97a;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .skeleton-row {
+    background: rgba(250,246,238,0.03);
+    border: 1px solid rgba(201,168,76,0.08);
+    border-radius: 3px;
+    margin-bottom: 8px;
+    height: 64px;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
+
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    font-size: 12px;
+    color: rgba(250,246,238,0.2);
+    letter-spacing: 0.08em;
+    font-style: italic;
+  }
+
+  .footer strong { color: rgba(201,168,76,0.4); font-style: normal; font-weight: 400; }
+
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:translateY(0)} }
+
+  .mobile-picks { display: none; }
+  .m-pick {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin: 2px 2px 0 0;
+    background: rgba(250,246,238,0.08);
+    color: rgba(250,246,238,0.55);
+    border: 1px solid rgba(250,246,238,0.1);
+  }
+  .m-pick-score { font-family: 'Playfair Display', serif; font-size: 10px; font-weight: 700; }
+  .m-pick-score.under { color: #6ee090; }
+  .m-pick-score.over  { color: #e07070; }
+  .m-pick-score.even  { color: rgba(250,246,238,0.45); }
+
+  .player-row { cursor: pointer; }
+  .row-chevron { display: inline-block; font-size: 9px; color: rgba(201,168,76,0.4); margin-left: 6px; transition: transform 0.2s; vertical-align: middle; }
+  .player-row.expanded .row-chevron { transform: rotate(180deg); }
+
+  .golfer-expand { display: none; border-top: 1px solid rgba(201,168,76,0.1); padding: 10px 24px 12px; }
+  .player-row.expanded .golfer-expand { display: block; }
+  .golfer-expand-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .ge-card { text-align: center; background: rgba(250,246,238,0.04); border: 1px solid rgba(201,168,76,0.1); border-radius: 4px; padding: 6px 4px; }
+  .ge-name { font-size: 11px; color: rgba(250,246,238,0.45); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ge-score { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; }
+  .ge-score.under { color: #6ee090; }
+  .ge-score.over  { color: #e07070; }
+  .ge-score.even  { color: rgba(250,246,238,0.55); }
+
+  @media(max-width:700px){
+    .col-headers,.row-main{ grid-template-columns: 44px 1fr 60px; }
+    .picks-header,.outlook,.golfer-cell,.outlook-header{ display:none; }
+    .col-headers span:nth-child(n+4){ display:none; }
+    .player-name{ font-size:15px; }
+    .place,.score{ font-size:18px; }
+    .player-row{ padding:0 16px; cursor:default; }
+    .mobile-picks { display:block; font-size:11px; color:rgba(250,246,238,0.45); margin-top:2px; }
+    .row-main { min-height:56px; }
+    .row-chevron { display: none; }
+    .golfer-expand { display: none !important; }
+  }
+
+  .payout-box-wrap { text-align: center; margin-bottom: 28px; }
+  .payout-box {
+    display: inline-block;
+    border: 1px solid rgba(201,168,76,0.22);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .payout-box-header {
+    font-family: 'Crimson Pro', serif;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.4);
+    text-align: center;
+    padding: 6px 20px 5px;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+  .payout-box-rows { display: flex; align-items: stretch; }
+  .payout-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 16px;
+    gap: 1px;
+    border-right: 1px solid rgba(201,168,76,0.15);
+  }
+  .payout-item:last-child { border-right: none; }
+  .payout-item-place {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.45);
+    font-family: 'Crimson Pro', serif;
+  }
+  .payout-item-amt {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #c9a84c;
+    line-height: 1.2;
+  }
+  .payout-item-amt.second { color: rgba(201,168,76,0.7); font-size: 13px; }
+  .payout-item-amt.third  { color: rgba(201,168,76,0.5); font-size: 12px; }
+  .payout-item-pct {
+    font-size: 9px;
+    color: rgba(201,168,76,0.3);
+    font-family: 'Crimson Pro', serif;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-badge">6th Annual</div>
+    <h1>The <span>Masters</span> Pool</h1>
+    <div class="divider"></div>
+    <div id="day-badge-container"></div>
+    <div class="cut-legend" id="cut-legend">
+      <span class="cut-badge" id="cut-badge">Projected cut: E</span>
+      <span class="legend-pill safe mobile-only">Safe</span>
+      <span class="legend-pill bubble mobile-only">Bubble</span>
+      <span class="legend-pill danger mobile-only">In danger</span>
+    </div>
+  </div>
+
+  <div class="live-bar">
+    <div class="live-dot loading" id="live-status">Fetching scores</div>
+    <div class="last-updated" id="last-updated"></div>
+  </div>
+
+  <div class="payout-box-wrap">
+    <div class="payout-box" id="payout-box">
+      <div class="payout-box-header">Prize Pool</div>
+      <div class="payout-box-rows">
+      <div class="payout-item">
+        <div class="payout-item-place">1st</div>
+        <div class="payout-item-amt" id="payout-1">—</div>
+        <div class="payout-item-pct">65%</div>
+      </div>
+      <div class="payout-item">
+        <div class="payout-item-place">2nd</div>
+        <div class="payout-item-amt second" id="payout-2">—</div>
+        <div class="payout-item-pct">25%</div>
+      </div>
+      <div class="payout-item">
+        <div class="payout-item-place">3rd</div>
+        <div class="payout-item-amt third" id="payout-3">—</div>
+        <div class="payout-item-pct">10%</div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scoreboard">
+    <div class="col-headers">
+      <span></span>
+      <span>Player</span>
+      <span style="text-align:center">Score</span>
+      <span class="outlook-header">Weekend Outlook</span>
+      <span class="picks-header">Golfers Picked</span>
+    </div>
+    <div id="rows">
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Auto-refreshes every 60 seconds &nbsp;&middot;&nbsp; <strong>The Masters Pool 2026</strong>
+  </div>
+
+</div>
+<script>
+var lastGoodRows = null;
+
+var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ43n1MzwpbzB0rGXhiSqf9q7kLaSRjjpCoA3Xs_vFgEvI7JLaoqkZ50_LT9bzrmLCzf1WUSw5LzIFl/pub?gid=1968497575&single=true&output=csv';
+
+function parseLine(line) {
+  var cols = [], cur = '', inQ = false;
+  for (var i = 0; i < line.length; i++) {
+    var c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+    else { cur += c; }
+  }
+  cols.push(cur.trim());
+  return cols;
+}
+
+var projectedCut = null;
+
+function parseCSV(text) {
+  var lines = text.trim().split('\n');
+  var firstRow = parseLine(lines[0]);
+  var rawCut = firstRow[0].replace(/["\'\s]/g, '');
+  var cutVal = parseFloat(rawCut);
+  projectedCut = isNaN(cutVal) ? null : cutVal;
+  var startIdx = 0;
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i].toLowerCase();
+    if (l.match(/^"?1st/)) { startIdx = i; break; }
+    if (l.indexOf('place') === 0) { startIdx = i + 1; break; }
+  }
+  return lines.slice(startIdx).map(function(line) {
+    return parseLine(line);
+  }).filter(function(r) { return r[1] && r[1].trim(); });
+}
+
+function scoreClass(s) {
+  if (!s || s === 'E' || s === '0') return 'even';
+  var n = parseInt(s);
+  if (isNaN(n)) return 'even';
+  return n < 0 ? 'under' : 'over';
+}
+
+function formatScore(s, isElim) {
+  if (!s) return isElim ? 'CUT' : 'E';
+  var n = parseInt(s);
+  if (isNaN(n)) return s;
+  if (n === 999) return 'CUT';
+  if (n === 0) return 'E';
+  return n > 0 ? '+' + n : String(n);
+}
+
+function lastName(full) {
+  if (!full || full === '-') return '-';
+  var parts = full.trim().split(' ');
+  return parts[parts.length - 1];
+}
+
+function bubbleColor(s) {
+  if (!s || s === 'E' || s === '0' || parseInt(s) === 0) return 'rgba(200,180,80,0.25);color:#e8c97a';
+  var n = parseInt(s);
+  if (isNaN(n)) return 'rgba(200,180,80,0.25);color:#e8c97a';
+  return n < 0 ? 'rgba(60,180,90,0.2);color:#6ee090' : 'rgba(180,60,60,0.2);color:#e07070';
+}
+
+function formatBubble(s) {
+  if (!s || s === '') return 'E';
+  var n = parseInt(s);
+  if (isNaN(n)) return s;
+  if (n === 0) return 'E';
+  return n > 0 ? '+' + n : String(n);
+}
+
+function render(rows) {
+  var container = document.getElementById('rows');
+  container.innerHTML = '';
+  rows.forEach(function(row, i) {
+    var place   = row[0] || '';
+    var name    = row[1] || '';
+    var score   = row[2] || '';
+    var outlook = row[3] || '';
+    var golferNames = [row[4], row[5], row[6], row[7], row[8]];
+    var champYear = row[9] || '';
+    var golfers = golferNames.map(function(g) { return g || '-'; });
+    var isFirst = place.trim() === '1st';
+    var isElim = place.trim() === '—' || place.trim() === '-' || place.trim() === '';
+    var div = document.createElement('div');
+    div.className = 'player-row' + (isFirst ? ' first-place' : '') + (isElim ? ' eliminated' : '');
+    div.style.animationDelay = (i * 0.07) + 's';
+    var sc = scoreClass(score);
+    var trophy = '';
+
+    var golferScores = [row[10], row[11], row[12], row[13], row[14]].map(function(s) {
+      var n = parseFloat(s);
+      return isNaN(n) ? null : n;
+    });
+
+    var mobilePicks = golferNames.map(function(g, idx) {
+      if (!g || g === '-') return '';
+      var parts = g.trim().split(' ');
+      var last = parts[parts.length - 1];
+      var gs = golferScores[idx];
+      var pillStyle = '';
+      var scoreHtml = '';
+      if (projectedCut !== null && gs !== null) {
+        if (gs >= 999) {
+          pillStyle = 'background:rgba(180,60,60,0.25);color:#e07070;border-color:rgba(180,60,60,0.3);';
+        } else if (gs > projectedCut) {
+          pillStyle = 'background:rgba(180,60,60,0.25);color:#e07070;border-color:rgba(180,60,60,0.3);';
+        } else if (gs === projectedCut) {
+          pillStyle = 'background:rgba(200,160,40,0.25);color:#e8c97a;border-color:rgba(200,160,40,0.3);';
+        } else {
+          pillStyle = 'background:rgba(60,160,90,0.2);color:#6ee090;border-color:rgba(60,160,90,0.25);';
+        }
+      }
+      if (gs !== null) {
+        var sc = gs < 0 ? 'under' : gs > 0 ? 'over' : 'even';
+        var sl = gs === 0 ? 'E' : (gs > 0 ? '+' + gs : '' + gs);
+        if (gs >= 999) { sc = 'over'; sl = 'CUT'; }
+        scoreHtml = '<span class="m-pick-score ' + sc + '">' + sl + '</span>';
+      }
+      return '<span class="m-pick" style="' + pillStyle + '">' + last + scoreHtml + '</span>';
+    }).filter(Boolean).join('');
+
+    var expandCards = golferNames.map(function(g, idx) {
+      if (!g || g === '-') return '';
+      var gs = golferScores[idx];
+      var sc = 'even', sl = 'E';
+      if (gs !== null) {
+        if (gs >= 999) { sc = 'over'; sl = 'CUT'; }
+        else if (gs < 0) { sc = 'under'; sl = '' + gs; }
+        else if (gs > 0) { sc = 'over'; sl = '+' + gs; }
+      }
+      return '<div class="ge-card"><div class="ge-name">' + g + '</div><div class="ge-score ' + sc + '">' + sl + '</div></div>';
+    }).filter(Boolean).join('');
+
+    div.innerHTML =
+      '<div class="row-main">' +
+        '<div class="place">' + place + '</div>' +
+        '<div class="player-name">' + trophy + name + (champYear ? '<span class="champ-year">' + champYear + '</span>' : '') + '<span class="row-chevron">&#9660;</span><div class="mobile-picks">' + mobilePicks + '</div></div>' +
+        '<div class="score ' + sc + '">' + formatScore(score, isElim) + '</div>' +
+        '<div class="outlook">' + outlook + '</div>' +
+        golfers.map(function(g) { return '<div class="golfer-cell">' + g + '</div>'; }).join('') +
+      '</div>' +
+      '<div class="golfer-expand"><div class="golfer-expand-grid">' + expandCards + '</div></div>';
+
+    div.addEventListener('click', function() {
+      if (window.innerWidth > 700) {
+        div.classList.toggle('expanded');
+      }
+    });
+    container.appendChild(div);
+  });
+}
+
+function setStatus(state, msg) {
+  var el = document.getElementById('live-status');
+  el.className = 'live-dot ' + state;
+  el.textContent = msg;
+}
+
+function setUpdated() {
+  var el = document.getElementById('last-updated');
+  var now = new Date();
+  el.textContent = 'Updated ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+function fetchData() {
+  setStatus('loading', 'Fetching scores');
+  fetch(CSV_URL + '&t=' + Date.now())
+    .then(function(res) {
+      if (!res.ok) throw new Error('Network error');
+      return res.arrayBuffer();
+    })
+    .then(function(buffer) {
+      var text = new TextDecoder('utf-8').decode(buffer);
+      var rows = parseCSV(text);
+      if (!rows.length) throw new Error('No data');
+      var allE = rows.every(function(r) {
+        var s = (r[2] || '').trim();
+        return s === '' || s === 'E' || s === '0';
+      });
+      if (allE && lastGoodRows) {
+        rows = lastGoodRows;
+      } else if (!allE) {
+        lastGoodRows = rows;
+      }
+      render(rows);
+      var entryFee = 50;
+  var totalPot = rows.length * entryFee;
+  var fmt = function(n) { return '$' + Math.round(n).toLocaleString(); };
+  document.getElementById('payout-1').textContent = fmt(totalPot * 0.65);
+  document.getElementById('payout-2').textContent = fmt(totalPot * 0.25);
+  document.getElementById('payout-3').textContent = fmt(totalPot * 0.10);
+
+  var champRow = rows.find(function(r) { return (r[9] || '').trim() === '2025'; });
+      var defendingChamp = champRow ? (champRow[1] || '').trim() : null;
+      renderDayBadge(defendingChamp);
+      var hasOutlook = rows.some(function(r) { return r[3] && r[3].trim() !== ''; });
+      var legend = document.getElementById('cut-legend');
+      var cutBadge = document.getElementById('cut-badge');
+      if (projectedCut !== null) {
+        legend.className = 'cut-legend visible';
+        var cutDisplay = projectedCut === 0 ? 'E' : (projectedCut > 0 ? '+' + projectedCut : String(projectedCut));
+        cutBadge.textContent = 'Projected cut: ' + cutDisplay;
+      } else {
+        legend.className = 'cut-legend';
+      }
+      var ohdr = document.querySelector('.outlook-header');
+      var ocols = document.querySelectorAll('.outlook');
+      if (ohdr) ohdr.style.display = hasOutlook ? '' : 'none';
+      ocols.forEach(function(el) { el.style.display = hasOutlook ? '' : 'none'; });
+      setStatus('active', 'Live');
+      setUpdated();
+    })
+    .catch(function() {
+      setStatus('error', 'Could not load');
+      document.getElementById('rows').innerHTML =
+        '<div style="text-align:center;padding:40px;color:rgba(250,246,238,0.35);font-style:italic;">Unable to fetch scores. Retrying shortly...</div>';
+    });
+}
+
+function renderDayBadge(defendingChamp) {
+  var container = document.getElementById('day-badge-container');
+  var day = new Date().getDay(); // 0=Sun, 4=Thu, 5=Fri, 6=Sat
+
+  var label, main, sub;
+
+  if (day === 4) {
+    label = 'Thursday &middot; Round 1';
+    main  = 'A Tradition Unlike Any Other';
+    sub   = null;
+  } else if (day === 5) {
+    label = 'Friday &middot; Round 2';
+    main  = 'Cut Day';
+    sub   = null;
+  } else if (day === 6) {
+    label = 'Saturday &middot; Round 3';
+    main  = 'Moving Day';
+    sub   = 'Time to climb';
+  } else if (day === 0) {
+    label = 'Round 4';
+    main  = 'Sunday at Augusta';
+    sub   = null;
+  } else {
+    container.innerHTML = '';
+    return;
+  }
+
+  var champLine = '';
+  if (day === 4 && defendingChamp) {
+    champLine = '<div class="defending-champ">Defending champion &nbsp;&middot;&nbsp; <strong>' + defendingChamp + '</strong></div>';
+  }
+
+  container.innerHTML =
+    '<div class="day-badge">' +
+      '<div class="day-badge-label">' + label + '</div>' +
+      '<div class="day-badge-rule"></div>' +
+      '<span class="day-badge-main">' + main + '</span>' +
+      '<div class="day-badge-rule"></div>' +
+      (sub ? '<div class="day-badge-sub">' + sub + '</div>' : '') +
+    '</div>' +
+    champLine;
+}
+
+renderDayBadge();
+fetchData();
+setInterval(fetchData, 60000);
+</script>
+</body>
+</html>
